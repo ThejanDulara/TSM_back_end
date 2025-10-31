@@ -15,9 +15,9 @@ def create_app():
     # --- JWT Setup ---
     jwt = JWTManager(app)
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    app.config["JWT_COOKIE_DOMAIN"] = ".thirdshiftmedia.agency"
-    app.config["JWT_COOKIE_SECURE"] = False if app.config.get("FLASK_ENV") == "development" else True
-    app.config["JWT_COOKIE_SAMESITE"] = "Lax" if app.config.get("FLASK_ENV") == "development" else "None"
+    app.config["JWT_COOKIE_DOMAIN"] = ".thirdshiftmedia.agency"  # ✅ share across all subdomains
+    app.config["JWT_COOKIE_SECURE"] = True  # ✅ always true in production
+    app.config["JWT_COOKIE_SAMESITE"] = "None"  # ✅ required for cross-domain cookie
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
     app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 
@@ -37,27 +37,30 @@ def create_app():
         print("⚠️ Token expired for user:", jwt_payload)
         return {"error": "Token expired"}, 401
 
-    # --- ✅ CORS Setup (Manual Headers to Allow Cookies) ---
+    # --- ✅ CORS Setup (Allow cookies from all TSM subdomains) ---
     @app.after_request
     def add_cors_headers(response):
         origin = request.headers.get("Origin")
         allowed_origins = [
             "http://localhost:5173",
             "http://127.0.0.1:5173",
-            "https://www.thirdshiftmedia.agency",  # ✅ Added
-            "https://copt.thirdshiftmedia.agency", # ✅ Added (you can add more if needed)
+            "https://www.thirdshiftmedia.agency",
+            "https://copt.thirdshiftmedia.agency",
             "https://opt.thirdshiftmedia.agency",
             "https://tmrp.thirdshiftmedia.agency",
             "https://mo.thirdshiftmedia.agency",
             "https://mmmr.thirdshiftmedia.agency",
             "https://cts.thirdshiftmedia.agency",
-            app.config.get("FRONTEND_BASE")
         ]
-        if origin in allowed_origins:
+        # ✅ Dynamically handle future subdomains
+        if origin and origin.endswith(".thirdshiftmedia.agency"):
             response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-            response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        elif origin in allowed_origins:
+            response.headers["Access-Control-Allow-Origin"] = origin
+
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
         return response
 
     # --- Initialize DB + Routes ---
