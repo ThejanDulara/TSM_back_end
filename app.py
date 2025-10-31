@@ -15,6 +15,7 @@ def create_app():
     # --- JWT Setup ---
     jwt = JWTManager(app)
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_COOKIE_DOMAIN"] = ".thirdshiftmedia.agency"
     app.config["JWT_COOKIE_SECURE"] = False if app.config.get("FLASK_ENV") == "development" else True
     app.config["JWT_COOKIE_SAMESITE"] = "Lax" if app.config.get("FLASK_ENV") == "development" else "None"
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
@@ -43,6 +44,13 @@ def create_app():
         allowed_origins = [
             "http://localhost:5173",
             "http://127.0.0.1:5173",
+            "https://www.thirdshiftmedia.agency",  # ✅ Added
+            "https://copt.thirdshiftmedia.agency", # ✅ Added (you can add more if needed)
+            "https://opt.thirdshiftmedia.agency",
+            "https://tmrp.thirdshiftmedia.agency",
+            "https://mo.thirdshiftmedia.agency",
+            "https://mmmr.thirdshiftmedia.agency",
+            "https://cts.thirdshiftmedia.agency",
             app.config.get("FRONTEND_BASE")
         ]
         if origin in allowed_origins:
