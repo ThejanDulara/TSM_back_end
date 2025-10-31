@@ -6,6 +6,7 @@ from src.user_routes import user_bp
 from src.admin_routes import admin_bp
 from src.config import Config
 from src.public_routes import public_bp
+import os
 
 def create_app():
     app = Flask(__name__, static_folder="static", static_url_path="/static")
