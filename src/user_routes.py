@@ -57,7 +57,7 @@ def update_picture():
 @user_bp.post("/change-password")
 @jwt_required()
 def change_password():
-    ident = get_jwt_identity()
+    ident = get_jwt_identity()   # 👈 this is the user_id as string
     data = request.get_json()
     old_p = data.get("old_password")
     new_p = data.get("new_password")
@@ -71,7 +71,7 @@ def change_password():
         return jsonify({"error": "Password must be at least 6 characters"}), 400
 
     with g.db.cursor() as cur:
-        cur.execute("SELECT password_hash FROM user WHERE id=%s", (ident["id"],))
+        cur.execute("SELECT password_hash FROM user WHERE id=%s", (ident,))
         row = cur.fetchone()
 
     if not row or not check_password_hash(row["password_hash"], old_p):
@@ -80,7 +80,8 @@ def change_password():
     with g.db.cursor() as cur:
         cur.execute(
             "UPDATE user SET password_hash=%s WHERE id=%s",
-            (generate_password_hash(new_p), ident["id"]),
+            (generate_password_hash(new_p), ident),
         )
+
     return jsonify({"message": "Password changed"}), 200
 
