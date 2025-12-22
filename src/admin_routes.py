@@ -74,12 +74,20 @@ def approve_user():
         <p>Hello {user['first_name']},</p>
         <p>Your account has been approved! 🎉</p>
         <p>You can now log in and access the ThirdShift Portal by clicking the link below:</p>
-        <p><a href="https://www.thirdshiftmedia.agency/signin" target="_blank">Click here to access the portal</a></p>
+        <p><a href="https://www.thirdshiftmedia.agency/signin" target="_blank">
+           Click here to access the portal</a></p>
         <p>Welcome aboard,<br>Team ThirdShift</p>
         """
-        send_mail(user["email"], "Account Approved - ThirdShift Portal", html)
 
-    return jsonify({"message": "User approved"}), 200
+        try:
+            send_mail(
+                user["email"],
+                "Account Approved - ThirdShift Portal",
+                html
+            )
+        except Exception as e:
+            # ⚠️ IMPORTANT: DO NOT FAIL THE API
+            print("⚠️ Email sending failed:", str(e))
 
 
 # ✅ Reject a user (remove + send rejection email)
@@ -118,7 +126,14 @@ def reject_user():
                 <p><a href="https://www.thirdshiftmedia.agency" target="_blank">Click here to contact admin</a></p>
                 <p>— Third Shift Media (Pvt) Ltd —</p>
             """
-            send_mail(user["email"], "Account Rejected - ThirdShift Portal", html)
+            try:
+                send_mail(
+                    user["email"],
+                    "Account Rejected - ThirdShift Portal",
+                    html
+                )
+            except Exception as e:
+                print("⚠️ Email sending failed (reject):", e)
 
             # Delete user record
             cur.execute("DELETE FROM user WHERE id=%s", (user_id,))
@@ -163,7 +178,14 @@ def delete_user(user_id):
                 <p><a href="https://www.thirdshiftmedia.agency" target="_blank">Click here to contact admin</a></p>
                 <p>— Third Shift Media (Pvt) Ltd —</p>
             """
-            send_mail(user["email"], "Account Deleted - ThirdShift Portal", html)
+            try:
+                send_mail(
+                    user["email"],
+                    "Account Deleted - ThirdShift Portal",
+                    html
+                )
+            except Exception as e:
+                print("⚠️ Email sending failed (delete):", e)
 
             return jsonify({"message": "User deleted and notified"}), 200
         else:
