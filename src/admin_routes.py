@@ -63,6 +63,7 @@ def approve_user():
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=True
     )
+
     with conn.cursor() as cur:
         cur.execute("UPDATE user SET is_approved=1 WHERE id=%s", (user_id,))
         cur.execute("SELECT email, first_name FROM user WHERE id=%s", (user_id,))
@@ -74,8 +75,11 @@ def approve_user():
         <p>Hello {user['first_name']},</p>
         <p>Your account has been approved! 🎉</p>
         <p>You can now log in and access the ThirdShift Portal by clicking the link below:</p>
-        <p><a href="https://www.thirdshiftmedia.agency/signin" target="_blank">
-           Click here to access the portal</a></p>
+        <p>
+          <a href="https://www.thirdshiftmedia.agency/signin" target="_blank">
+            Click here to access the portal
+          </a>
+        </p>
         <p>Welcome aboard,<br>Team ThirdShift</p>
         """
 
@@ -86,8 +90,11 @@ def approve_user():
                 html
             )
         except Exception as e:
-            # ⚠️ IMPORTANT: DO NOT FAIL THE API
             print("⚠️ Email sending failed:", str(e))
+
+    # ✅ THIS LINE FIXES EVERYTHING
+    return jsonify({"message": "User approved"}), 200
+
 
 
 # ✅ Reject a user (remove + send rejection email)
