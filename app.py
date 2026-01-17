@@ -51,6 +51,8 @@ def create_app():
             "https://mo.thirdshiftmedia.agency",
             "https://mmmr.thirdshiftmedia.agency",
             "https://cts.thirdshiftmedia.agency",
+            "https://pbi.thirdshiftmedia.agency",
+            "https://pm.thirdshiftmedia.agency",
         ]
         # ✅ Dynamically handle future subdomains
         if origin and origin.endswith(".thirdshiftmedia.agency"):
